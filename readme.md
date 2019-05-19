@@ -251,11 +251,189 @@ console.log(boy.name); // nameParent
 ==> nếu không tìm thấy sẽ trả về undefined
 ```
 
-#### test
 
-> this dfdsf fslfsdfs flskdflskf kjkdjfkds dskfndsfknkdsfkds <br>
-> sasa fsdfdsd fsf sf sf df s f sfkfakfksafnaksfnkafnkas fsjkaf *bbbb*
-> hjhj hihihi kfajkfnkafkfknaskfnksfnksa knafksndfkasn *ggg*
+## ES6 Class JavaScript
+
+- let & var
+- extends, super & constructor
+- privated 
+& namespace
+
+### 1. let & var
+```javascript
+function startVar() {
+  for (var x = 0; x < 5; x++) {
+      console.log(x);
+  }
+  console.log(x);
+}
+
+function startLet() {
+  for (let i = 0; i < 5; i++) {
+      console.log(i);
+  }
+  console.log(i);
+}
+//startVar(); // 0, 1, 2, 3, 4, >> 5 <<
+//startLet(); // 0, 1, 2, 3, 4, >> i is not defined <<
+```
+#### summary
+```
+ - var  ==> function-scoped
+ - ES6 (2015) : let, const  ==> block-scoped
+```
+## Class
+
+```javascript
+  class Animal {
+
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+        this.type = 'High';
+        //private properties
+        let _price = 9000;
+        
+        this.getPrice = function () {
+            return _price;
+        };
+
+        this.setPrice = function (price) {
+            _price = price;
+            return this;
+        };
+
+        // private method
+        let fly = function () {
+            return ' < I can fly ! fast or slow > ';
+        };
+
+        this.makeFly = function () {
+            return fly();
+        };
+
+        this.getInfoFromConstruct = function() {
+            return `name is ${this.name} + is age ${this.age}`;
+        };
+
+        this.getType = function() {
+            return this.type + ' secret';
+        };
+    }
 
 
+    getType() {
+        return this.type;
+    }
 
+    getInfo() {
+        return `Animal: name ${this.name} + age ${this.age}`;
+    }
+
+    getPriceAndFlyFromPrototype() {
+        return 'from prototype: get Fly ' +
+            this.makeFly() + ' and get Price ' +
+            this.getPrice();
+    }
+}
+
+const cat = new Animal('Tom', 5);
+//console.log(cat.setPrice(7000).getPrice());
+console.log(cat.getPriceAndFlyFromPrototype())
+//console.log(cat.makeFly()); // allow call private method
+//console.log(cat.getPriceAndFlyFromPrototype());
+
+// console.log(cat.getType()); // High secret
+```
+#### summary
+```
+ - Từ khoá "this" bên trong constructor function chỉ chính đối tượng đó.
+ - những class con kế thừa từ class cha không thể truy cập trực tiếp tới những thuộc tính bên trong constructor function.
+ - class con chỉ có thể truy cập thông qua prototype (prototype sẽ gọi tới this)
+ - prototype không thể gọi trực tiếp tới private 
+- private : được dùng bên trong class
+```
+## extends Class 
+
+```javascript
+class Lion extends Animal {
+    constructor(name, age, strong) {
+        super(name, age);
+
+        this.strong = strong;
+        let _level = 'max';
+        let _flagKing = false;
+
+        this.isKing = function () {
+            if (this.strong !== _level) {
+                _flagKing = false;
+                return _flagKing;
+            }
+            return this;
+        };
+
+        this.getInfo = function () {
+
+            if (this.isKing()) {
+                return `LION name: ${this.name} + age ${this.age} + level ${this.strong} level ${_level}`;
+            }
+            return 'not king';
+        };
+    }
+
+    getMore() {
+        //return this.getType(); // -> High secret
+        return super.getType(); // -> High public
+    }
+
+    getParentInfo() {
+        //console.log(super.getInfoFromConstruct()); 
+        // -> ERR: getInfoFromConstruct is not function
+
+        // doi voi super khi kế thừa từ class cha,
+        // class con chỉ có thể truy cập tới prototype 
+        return super.getPriceAndFlyFromPrototype(); 
+    }
+
+    static onLoaded() {
+        console.log('static load');
+    }
+}
+//Lion.onLoaded(); // static load
+
+const lion = new Lion('SUTU', 10, 'max');
+//console.log(lion.isKing());
+//console.log(lion.getInfo());
+
+//console.log(lion.getMore()); // defined at constructor and prototype
+console.log(lion.getParentInfo());
+```
+
+### summary
+```
+- super() : gọi lại constructor của lớp cha
+- để gọi tới chinh xac prototype cha, ta dùng super.prototype 
+- static : được tạo ra trước khi đối tượng được khởi tạo 
+```
+
+## namespace 
+
+```javascript
+let AppMain = (function () {
+    class Point {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        toString() {
+            return '(' + this.x + ', ' + this.y + ')';
+        }
+    }
+    return {
+        Point: Point
+    };
+})();
+//let p = new Point(123, 456); // Point is not defined
+let p = new AppMain.Point(123, 456); 
+console.log(p.y); // 456
+```
